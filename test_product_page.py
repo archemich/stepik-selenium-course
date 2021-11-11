@@ -1,6 +1,38 @@
 import pytest
+import uuid
 from .pages.product_page import ProductPage
+from .pages.login_page import LoginPage
 from .pages.basket_page import BasketPage
+from .pages.cart_page import CartPage
+from .pages.cart_page import EMPTY_CART_MESSAGES
+
+@pytest.mark.logged_user
+class TestUserAddToBasketFromProductPage:
+
+    @pytest.fixture(scope="function", autouse=True)
+    def setup(self, browser):
+        self.link = "http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/"
+        self.browser = browser
+
+        login_page = LoginPage(browser, "http://selenium1py.pythonanywhere.com/accounts/login/")
+        login_page.open()
+        email, password = f"{uuid.uuid4().hex}@fakemail.com", uuid.uuid4().hex
+        login_page.register_new_user(email, password)
+
+    @pytest.mark.skip
+    def test_user_cant_see_success_massage(self):
+        page = ProductPage(self.browser, self.link)
+        page.open()
+        page.should_not_be_success_message()
+
+    @pytest.mark.skip
+    def test_user_can_add_product_to_basket(self):
+        page = ProductPage(self.browser, self.link)
+        page.open()
+        page.add_product_into_cart()
+        page.success_message_should_contain_product_name()
+        page.total_should_be_equal_to_price()
+
 
 # pytest -v -s --tb=line --language=en test_product_page.py
 @pytest.mark.parametrize('link', ["http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=offer0",
