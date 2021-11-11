@@ -1,13 +1,18 @@
-import time
+import logging
+
 from .base_page import BasePage
-from .locators import BasePageLocators
-from  .locators import BasketPageLocators
+from .locators import BasketPageLocators
+
 
 class BasketPage(BasePage):
-    def should_be_empty_basket(self):
-        time.sleep(3)
-        assert self.is_not_element_present(*BasketPageLocators.ITEMS_TO_BUY_NOW), "There are items in the basket"
+    def should_be_empty(self):
+        self.should_be_no_items()
+        self.should_be_empty_message_shown()
+    
+    def should_be_empty_message_shown(self):
+        basket_content = self.browser.find_element(*BasketPageLocators.BASKET_CONTENT)
+        assert BasketPageLocators.EMPTY_BASKET_MESSAGE in basket_content.text
 
-    def should_be_message_empty_basket(self):
-        time.sleep(3)
-        assert self.is_element_present(*BasketPageLocators.MESSAGE_EMPTY_BASKET), "No message that basket is empty"
+    def should_be_no_items(self):
+        assert self.is_not_element_present(*BasketPageLocators.BASKET_ITEMS), \
+           'Some items are in basket, but should not be'
